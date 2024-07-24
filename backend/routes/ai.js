@@ -1,8 +1,8 @@
 import express from "express";
-import { summarize, ensureSummarizerInitialized } from "../controllers/ai.js";
+import { summarize } from "../controllers/ai.js";
 
 const router = express.Router();
 
-router.post("/summarize", ensureSummarizerInitialized, summarize);
+router.post("/summarize", summarize);
 
 export { router as aiRoute };

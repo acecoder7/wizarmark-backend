@@ -1,25 +1,22 @@
 import asyncHandler from 'express-async-handler';
-import { LanguageServiceClient } from '@google-cloud/language';
 import { pipeline } from '@xenova/transformers';
 
-let summarizer;
-
+// Function to initialize summarizer
 async function initializeSummarizer() {
-  summarizer = await pipeline('summarization', undefined, {
+  const summarizer = await pipeline('summarization', undefined, {
     cache: {
       backend: 'fs',
-      directory: '/tmp/.cache', // Vercel's writable path
-      limit: 1000,
+      directory: '/tmp/.cache', // Writable directory in Vercel
+      limit: 1000, // Adjust the cache size limit as needed
     },
   });
+  return summarizer;
 }
 
-// Middleware to ensure summarizer is initialized
-const ensureSummarizerInitialized = asyncHandler(async (req, res, next) => {
-  if (!summarizer) {
-    await initializeSummarizer();
-  }
-  next();
+// Initialize summarizer
+let summarizer;
+initializeSummarizer().then((s) => {
+  summarizer = s;
 });
 
 const summarize = asyncHandler(async (req, res) => {
@@ -27,6 +24,12 @@ const summarize = asyncHandler(async (req, res) => {
     const { text } = req.body;
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
+    }
+
+    if (!summarizer) {
+      await initializeSummarizer().then((s) => {
+        summarizer = s;
+      });
     }
 
     const summary = await summarizer(text);
@@ -37,7 +40,8 @@ const summarize = asyncHandler(async (req, res) => {
   }
 });
 
-export { summarize, ensureSummarizerInitialized };
+export { summarize };
+
 
 
 
