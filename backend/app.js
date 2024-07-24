@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import cors from 'cors';
 
-import {userRoute} from './routes/user.js';
-import { aiRoute } from './routes/ai.js'; 
+// import {userRoute} from './routes/user.js';
+// import { aiRoute } from './routes/ai.js'; 
 
 
 dotenv.config({ path: new URL('../.env', import.meta.url).pathname });
@@ -18,8 +18,12 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use("/api/user", userRoute);
-app.use("/api/ai", aiRoute);
+// app.use("/api/user", userRoute);
+// app.use("/api/ai", aiRoute);
+
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
 
 app.use(notFound);
