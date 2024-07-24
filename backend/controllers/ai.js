@@ -2,21 +2,24 @@ import asyncHandler from 'express-async-handler';
 import { LanguageServiceClient } from '@google-cloud/language';
 import { pipeline } from '@xenova/transformers';
 
-// Function to initialize summarizer
+let summarizer;
+
 async function initializeSummarizer() {
-  const summarizer = await pipeline('summarization', undefined, {
+  summarizer = await pipeline('summarization', undefined, {
     cache: {
-      backend: 'memory',
-      limit: 1000, // Adjust the cache size limit as needed
+      backend: 'fs',
+      directory: '/tmp/.cache', // Vercel's writable path
+      limit: 1000,
     },
   });
-  return summarizer;
 }
 
-// Initialize summarizer
-let summarizer;
-initializeSummarizer().then((s) => {
-  summarizer = s;
+// Middleware to ensure summarizer is initialized
+const ensureSummarizerInitialized = asyncHandler(async (req, res, next) => {
+  if (!summarizer) {
+    await initializeSummarizer();
+  }
+  next();
 });
 
 const summarize = asyncHandler(async (req, res) => {
@@ -34,7 +37,7 @@ const summarize = asyncHandler(async (req, res) => {
   }
 });
 
-export { summarize };
+export { summarize, ensureSummarizerInitialized };
 
 
 
