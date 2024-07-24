@@ -1,15 +1,24 @@
 import asyncHandler from 'express-async-handler';
 import { pipeline } from '@xenova/transformers';
+import fs from 'fs';
 
 // Function to initialize summarizer
 async function initializeSummarizer() {
+  const cacheDir = '/tmp/.cache';
+
+  // Ensure cache directory exists
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
+
   const summarizer = await pipeline('summarization', undefined, {
     cache: {
       backend: 'fs',
-      directory: '/tmp/.cache', // Writable directory in Vercel
-      limit: 1000, // Adjust the cache size limit as needed
+      directory: cacheDir,
+      limit: 100000, // Adjust the cache size limit as needed
     },
   });
+
   return summarizer;
 }
 
@@ -27,9 +36,7 @@ const summarize = asyncHandler(async (req, res) => {
     }
 
     if (!summarizer) {
-      await initializeSummarizer().then((s) => {
-        summarizer = s;
-      });
+      summarizer = await initializeSummarizer();
     }
 
     const summary = await summarizer(text);
