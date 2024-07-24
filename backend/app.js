@@ -14,7 +14,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 const app = express();
 app.use(cors());
 
-import connectDB from './config/db.js';
+// import connectDB from './config/db.js';
 
 app.use(express.json());
 
@@ -27,12 +27,16 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 7070;
 
-connectDB()
-  .then(async () => {
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
-  })
-  .catch((error) => {
-    console.log("Error connecting to the database", error);
-  });
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+// connectDB()
+//   .then(async () => {
+//     app.listen(port, () => {
+//       console.log(`Server is running on port ${port}`);
+//     });
+//   })
+//   .catch((error) => {
+//     console.log("Error connecting to the database", error);
+//   });

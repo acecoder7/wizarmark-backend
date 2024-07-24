@@ -60,4 +60,4 @@ const summarize = asyncHandler(async (req, res) => {
         }
 });
 
-export { classify, summarize };
+export { summarize };
